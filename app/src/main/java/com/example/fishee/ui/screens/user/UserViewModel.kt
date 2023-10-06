@@ -28,7 +28,7 @@ class UserViewModel(
         viewModelScope.launch {
             try {
                 dao.upsertUser(User(name = name, password = password))
-                _state.update { it.copy(status = UserSaveStatus.SAVED) }
+                _state.update { it.copy(status = UserSaveStatus.SAVED, isDialogVisible = false) }
             } catch (e: Exception) {
                 _state.update { it.copy(status = UserSaveStatus.NOT_SAVED) }
             }
@@ -59,6 +59,15 @@ class UserViewModel(
             is UserScreenEvent.SetUserName -> _state.update { it.copy(userName = event.userName) }
             is UserScreenEvent.SetUserPassword -> _state.update { it.copy(userPassword = event.userPassword) }
             UserScreenEvent.ShowUsers -> loadUsers()
+            UserScreenEvent.DismissDialog -> _state.update { it.copy(isDialogVisible = false) }
+            UserScreenEvent.ShowAddDialog -> _state.update { it.copy(isDialogVisible = true) }
+            is UserScreenEvent.DeleteUser -> deleteUser(event.user)
+        }
+    }
+
+    private fun deleteUser(user: User) {
+        viewModelScope.launch {
+            dao.deleteUser(user)
         }
     }
 

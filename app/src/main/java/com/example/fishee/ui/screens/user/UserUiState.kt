@@ -12,5 +12,6 @@ data class UserUiState(
     val userList: List<User> = emptyList(),
     val userName: String = "",
     val userPassword: String = "",
-    val status: UserSaveStatus = UserSaveStatus.EMPTY
+    val status: UserSaveStatus = UserSaveStatus.EMPTY,
+    val isDialogVisible: Boolean = false,
 )
