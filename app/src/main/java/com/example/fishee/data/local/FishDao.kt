@@ -21,7 +21,7 @@ interface FishDao {
     @Query("SELECT * FROM fish WHERE user_id = :userId ORDER BY created_at DESC")
     fun getFishesByDate(userId: Int): Flow<List<Fish>>
 
-    @Query("SELECT * FROM fish WHERE user_id = :userId ORDER BY river DESC")
+    @Query("SELECT * FROM fish WHERE user_id = :userId ORDER BY weight   DESC")
     fun getFishesByWeight(userId: Int): Flow<List<Fish>>
 
     @Query("SELECT * FROM fish WHERE id = :id")

@@ -33,8 +33,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -45,13 +43,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.example.fishee.data.local.models.User
+import com.example.fishee.ui.Appbar
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserScreen(
-    state: UserUiState, onEvent: (UserScreenEvent) -> Unit, modifier: Modifier = Modifier
+    state: UserUiState,
+    onEvent: (UserScreenEvent) -> Unit,
+    onNavigate: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
-        topBar = { Appbar(onEvent = onEvent) },
+        topBar = { Appbar() },
         modifier = modifier.fillMaxSize(),
     ) { innerPadding ->
         Box(
@@ -89,48 +92,52 @@ fun UserScreen(
                             state = rememberLazyListState()
                         ) {
                             items(state.userList) {
-                                UserCard(user = it, onEvent = onEvent)
+                                UserCard(user = it, onEvent = onEvent, onNavigate = onNavigate)
                             }
                             item {
-                                Card(
-                                    onClick = {
-                                        onEvent(UserScreenEvent.ShowAddDialog)
-                                    },
-                                    shape = CircleShape,
-                                    modifier = Modifier
-                                        .padding(8.dp)
-                                        .size(64.dp),
-                                    colors = CardDefaults.cardColors(
-                                        containerColor = MaterialTheme.colorScheme.primary
-                                    )
-                                ) {
-                                    Box(
-                                        contentAlignment = Alignment.Center,
-                                        modifier = Modifier.fillMaxSize()
-                                    ) {
-                                        Icon(
-                                            imageVector = Icons.Default.Add,
-                                            contentDescription = "Add user"
-                                        )
-                                    }
-                                }
+                                AddUserCard(onEvent = onEvent)
                             }
-
                         }
                     }
                 }
             }
         }
     }
-
 }
 
 @Composable
-fun UserCard(user: User, onEvent: (UserScreenEvent) -> Unit) {
+fun AddUserCard(onEvent: (UserScreenEvent) -> Unit) {
+    Card(
+        onClick = {
+            onEvent(UserScreenEvent.ShowAddDialog)
+        },
+        shape = CircleShape,
+        modifier = Modifier
+            .padding(8.dp)
+            .size(64.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.primary
+        )
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize()
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = "Add user"
+            )
+        }
+    }
+}
+
+@Composable
+fun UserCard(user: User, onEvent: (UserScreenEvent) -> Unit, onNavigate: () -> Unit) {
     Box {
         Card(
             onClick = {
                 onEvent(UserScreenEvent.SetCurrentUser(user.id))
+                onNavigate()
             },
             shape = CircleShape,
             modifier = Modifier
@@ -198,19 +205,5 @@ fun AddUserDialog(
                 )
             }
         },
-    )
-}
-
-@Composable
-fun Appbar(
-    onEvent: (UserScreenEvent) -> Unit, modifier: Modifier = Modifier
-) {
-    TopAppBar(
-        title = {
-            Text(text = "Fishee")
-        }, colors = TopAppBarDefaults.smallTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primary,
-            titleContentColor = MaterialTheme.colorScheme.onPrimary,
-        ), modifier = modifier
     )
 }
