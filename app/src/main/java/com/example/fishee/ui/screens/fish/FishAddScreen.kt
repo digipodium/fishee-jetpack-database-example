@@ -34,10 +34,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,9 +55,7 @@ fun FishAddScreen(
     modifier: Modifier = Modifier
 ) {
     val scrollState = rememberScrollState()
-    var message by rememberSaveable {
-        mutableStateOf("Enter fish details")
-    }
+
     Scaffold(
         topBar = { Appbar(text = "Add Fish") },
         floatingActionButton = {
@@ -69,9 +63,9 @@ fun FishAddScreen(
                 onEvent(FishScreenEvent.SaveFish)
                 when (state.status) {
                     FishSaveStatus.SAVED -> onNavigate()
-                    FishSaveStatus.NOT_SAVED -> message = "You have not saved the fish details"
-                    FishSaveStatus.EMPTY -> message = "Fields are empty"
-                    FishSaveStatus.INVALID -> message = "Fields are invalid"
+                    FishSaveStatus.NOT_SAVED -> onEvent(FishScreenEvent.SetMessage(message = "You have not saved the fish details"))
+                    FishSaveStatus.EMPTY -> onEvent(FishScreenEvent.SetMessage(message = "Fields are empty"))
+                    FishSaveStatus.INVALID -> onEvent(FishScreenEvent.SetMessage(message = "Fields are invalid"))
                 }
 
             }) {
@@ -93,7 +87,7 @@ fun FishAddScreen(
 
                 // show message
                 Text(
-                    text = message,
+                    text = state.message,
                     style = MaterialTheme.typography.labelSmall,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()

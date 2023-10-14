@@ -22,4 +22,5 @@ data class FishUiState(
     val currentUserId: Int,
     val status: FishSaveStatus = FishSaveStatus.EMPTY,
     val sortType: FishSortType = FishSortType.NAME,
+    val message: String = "",
 )

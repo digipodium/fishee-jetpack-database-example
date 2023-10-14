@@ -39,7 +39,7 @@ fun Navigation(
     val userState = userViewModel.state.collectAsState()
     val navController = rememberNavController()
     NavHost(
-        navController = navController, startDestination = NavigationScreen.FishAdd.name
+        navController = navController, startDestination = NavigationScreen.FishList.name
     ) {
         composable(NavigationScreen.FishList.name) {
             UserScreen(

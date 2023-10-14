@@ -1,6 +1,7 @@
 package com.example.fishee.ui.screens.fish
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.fishee.FisheeApplication
@@ -72,6 +73,7 @@ class FishViewModel(
                     _state.update {
                         it.copy(status = FishSaveStatus.SAVED)
                     }
+                    resetStateData()
                 } catch (e: Exception) {
                     _state.update {
                         it.copy(status = FishSaveStatus.NOT_SAVED)
@@ -85,6 +87,20 @@ class FishViewModel(
         }
     }
 
+    private fun resetStateData() {
+        _state.update {
+            it.copy(
+                fishName = "",
+                fishWeight = "",
+                fishHeight = "",
+                fishLength = "",
+                fishImage = "",
+                fishDescription = "",
+                fishRiver = ""
+            )
+        }
+    }
+
     private fun validateFish(
         name: String,
         weight: String,
@@ -94,7 +110,10 @@ class FishViewModel(
         description: String,
         river: String
     ): Boolean {
-        return name.isNotBlank() && weight.isNotBlank() && height.isNotBlank() && length.isNotBlank() && image.isNotBlank() && description.isNotBlank() && river.isNotBlank()
+        Log.d("FishViewModel", "validateFish: $name $weight $height $length $image $description $river")
+        val ans= name.isNotBlank() && weight.isNotBlank() && height.isNotBlank() && length.isNotBlank() && image.isNotEmpty() && description.isNotBlank() && river.isNotBlank()
+        Log.d("FishViewModel", "validateFish: $ans")
+        return ans
     }
 
     private fun deleteFish(fish: Fish) {
@@ -127,6 +146,8 @@ class FishViewModel(
             is FishScreenEvent.SetFishName -> _state.update { it.copy(fishName = event.fishName) }
             is FishScreenEvent.SetFishRiver -> _state.update { it.copy(fishRiver = event.fishRiver) }
             is FishScreenEvent.SetFishWeight -> _state.update { it.copy(fishWeight = event.fishWeight) }
+            is FishScreenEvent.SetMessage -> _state.update { it.copy(message=event.message) }
+            is FishScreenEvent.SetSortBy -> _sortType.update { event.sortBy }
         }
     }
 }
