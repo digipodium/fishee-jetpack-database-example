@@ -18,6 +18,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.fishee.ui.screens.fish.FishAddScreen
 import com.example.fishee.ui.screens.fish.FishDetailScreen
+import com.example.fishee.ui.screens.fish.FishEditScreen
 import com.example.fishee.ui.screens.fish.FishListScreen
 import com.example.fishee.ui.screens.fish.FishViewModel
 import com.example.fishee.ui.screens.user.UserScreen
@@ -25,7 +26,7 @@ import com.example.fishee.ui.screens.user.UserViewModel
 
 
 enum class NavigationScreen {
-    UserScreen, FishList, FishAdd, FishDetail
+    UserScreen, FishList, FishAdd, FishDetail, FishEdit
 }
 
 @Composable
@@ -39,9 +40,9 @@ fun Navigation(
     val userState = userViewModel.state.collectAsState()
     val navController = rememberNavController()
     NavHost(
-        navController = navController, startDestination = NavigationScreen.FishList.name
+        navController = navController, startDestination = NavigationScreen.UserScreen.name
     ) {
-        composable(NavigationScreen.FishList.name) {
+        composable(NavigationScreen.UserScreen.name) {
             UserScreen(
                 state = userState.value, onEvent = userViewModel::onEvent,
                 onNavigate = { navController.navigate(NavigationScreen.FishList.name) },
@@ -66,7 +67,7 @@ fun Navigation(
                 state = fishState.value,
                 onEvent = fishViewModel::onEvent,
                 onNavigate = {
-                    navController.navigate(NavigationScreen.FishList.name)
+                    navController.navigateUp()
                 },
                 modifier = modifier
             )
@@ -75,6 +76,19 @@ fun Navigation(
             FishDetailScreen(
                 state = fishState.value,
                 onEvent = fishViewModel::onEvent,
+                onNavigateToEdit = {
+                    navController.navigate(NavigationScreen.FishEdit.name)
+                },
+                modifier = modifier
+            )
+        }
+        composable(NavigationScreen.FishEdit.name){
+            FishEditScreen(
+                state = fishState.value,
+                onEvent = fishViewModel::onEvent,
+                onNavigate = {
+                    navController.navigateUp()
+                },
                 modifier = modifier
             )
         }

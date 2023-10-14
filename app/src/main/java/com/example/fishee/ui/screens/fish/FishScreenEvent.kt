@@ -15,4 +15,8 @@ sealed interface FishScreenEvent {
     data class SetFishRiver(val fishRiver: String) : FishScreenEvent
     data class SetMessage(val message: String) : FishScreenEvent
     data class SetSortBy(val sortBy: FishSortType) : FishScreenEvent
+    data class SetFish(val fish: Fish) : FishScreenEvent
+    data class SetFishById(val fishId: Int) : FishScreenEvent
+    data class SetFishFields(val fish: Fish) : FishScreenEvent
+    data class UpdateFish(val fishId: Int) : FishScreenEvent
 }

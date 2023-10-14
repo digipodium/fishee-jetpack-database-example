@@ -15,7 +15,7 @@ interface FishDao {
     @Delete
     suspend fun deleteFish(fish: Fish)
 
-    @Query("SELECT * FROM fish WHERE user_id = :userId ORDER BY name DESC")
+    @Query("SELECT * FROM fish WHERE user_id = :userId ORDER BY name")
     fun getFishesByName(userId: Int): Flow<List<Fish>>
 
     @Query("SELECT * FROM fish WHERE user_id = :userId ORDER BY created_at DESC")

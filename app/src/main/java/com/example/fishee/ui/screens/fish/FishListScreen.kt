@@ -103,7 +103,10 @@ fun FishListItem(
     modifier: Modifier
 ) {
     Card(
-        onClick = onNavigateToDetail,
+        onClick = {
+            onEvent(FishScreenEvent.SetFish(fish))
+            onNavigateToDetail()
+        },
         modifier = modifier
             .fillMaxSize()
     ) {

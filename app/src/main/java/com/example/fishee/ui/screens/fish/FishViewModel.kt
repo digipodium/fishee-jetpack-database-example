@@ -148,6 +148,77 @@ class FishViewModel(
             is FishScreenEvent.SetFishWeight -> _state.update { it.copy(fishWeight = event.fishWeight) }
             is FishScreenEvent.SetMessage -> _state.update { it.copy(message=event.message) }
             is FishScreenEvent.SetSortBy -> _sortType.update { event.sortBy }
+            is FishScreenEvent.SetFish -> _state.update{it.copy(fish = event.fish)}
+            is FishScreenEvent.SetFishFields -> setFishFields(event.fish)
+            is FishScreenEvent.UpdateFish -> updateFish(event.fishId)
+            is FishScreenEvent.SetFishById -> setFishById(event.fishId)
+        }
+    }
+
+    private fun setFishById(fishId: Int) {
+        viewModelScope.launch {
+            dao.getFishById(fishId).collect{fish->
+                _state.update{
+                    it.copy(fish = fish)
+                }
+            }
+        }
+    }
+
+    private fun updateFish(fishId: Int) {
+        val name = _state.value.fishName
+        val weight = _state.value.fishWeight
+        val height = _state.value.fishHeight
+        val length = _state.value.fishLength
+        val image = _state.value.fishImage
+        val description = _state.value.fishDescription
+        val river = _state.value.fishRiver
+        val userId = _state.value.currentUserId
+        if (validateFish(name, weight, height, length, image, description, river)) {
+            viewModelScope.launch {
+                try {
+                    dao.upsertFish(
+                        Fish(
+                            id = fishId,
+                            name = name,
+                            weight = weight.toFloat(),
+                            height = height.toFloat(),
+                            length = length.toFloat(),
+                            image = image,
+                            description = description,
+                            river = river,
+                            userId = userId
+                        )
+                    )
+                    _state.update {
+                        it.copy(status = FishSaveStatus.SAVED)
+                    }
+                    resetStateData()
+                } catch (e: Exception) {
+                    _state.update {
+                        it.copy(status = FishSaveStatus.NOT_SAVED)
+                    }
+                }
+            }
+        } else {
+            _state.update {
+                it.copy(status = FishSaveStatus.INVALID)
+            }
+        }
+    }
+
+    private fun setFishFields(fish: Fish) {
+        _state.update {
+            it.copy(
+                fishId = fish.id,
+                fishName = fish.name,
+                fishWeight = fish.weight.toString(),
+                fishHeight = fish.height.toString(),
+                fishLength = fish.length.toString(),
+                fishImage = fish.image,
+                fishDescription = fish.description,
+                fishRiver = fish.river
+            )
         }
     }
 }
