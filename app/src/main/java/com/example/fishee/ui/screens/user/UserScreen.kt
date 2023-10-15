@@ -41,11 +41,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.fishee.data.local.models.User
 import com.example.fishee.ui.Appbar
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.isGranted
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalPermissionsApi::class)
 @Composable
 fun UserScreen(
     state: UserUiState,
@@ -62,48 +67,79 @@ fun UserScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            Column(
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier.fillMaxSize()
-            ) {
-                if (state.isDialogVisible) {
-                    AddUserDialog(state = state, onEvent = onEvent)
-                }
-                var isVisible by rememberSaveable { mutableStateOf(false) }
-                Button(
-                    onClick = {
-                        isVisible = !isVisible
-                        onEvent(UserScreenEvent.ShowUsers)
-                    }) {
-                    Text(text = if (isVisible) "Select a user" else "Login")
-                }
+            val readMediaImages = rememberPermissionState(
+                permission = android.Manifest.permission.READ_MEDIA_IMAGES
+            )
+            if (readMediaImages.status.isGranted) {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    if (state.isDialogVisible) {
+                        AddUserDialog(state = state, onEvent = onEvent)
+                    }
+                    var isVisible by rememberSaveable { mutableStateOf(false) }
+                    Button(
+                        onClick = {
+                            isVisible = !isVisible
+                            onEvent(UserScreenEvent.ShowUsers)
+                        }) {
+                        Text(text = if (isVisible) "Select a user" else "Login")
+                    }
 
-                AnimatedVisibility(visible = isVisible) {
-                    Row(
-                        modifier = Modifier.padding(8.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        LazyRow(
-                            userScrollEnabled = true,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            state = rememberLazyListState()
+                    AnimatedVisibility(visible = isVisible) {
+                        Row(
+                            modifier = Modifier.padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceEvenly,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            items(state.userList) {
-                                UserCard(user = it, onEvent = onEvent, onNavigate = onNavigate)
-                            }
-                            item {
-                                AddUserCard(onEvent = onEvent)
+                            LazyRow(
+                                userScrollEnabled = true,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                state = rememberLazyListState()
+                            ) {
+                                items(state.userList) {
+                                    UserCard(user = it, onEvent = onEvent, onNavigate = onNavigate)
+                                }
+                                item {
+                                    AddUserCard(onEvent = onEvent)
+                                }
                             }
                         }
+                    }
+                }
+            } else {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(32.dp)
+                ) {
+
+                    val textToShow = if (readMediaImages.status.shouldShowRationale) {
+                        "The gallery is important for this app. Please grant the permission."
+                    } else {
+                        "gallery permission required for this feature to be available. Please grant the permission"
+                    }
+                    Text(
+                        textToShow,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Button(onClick = {
+                        readMediaImages.launchPermissionRequest()
+                    }) {
+                        Text("Request permission")
                     }
                 }
             }
         }
     }
 }
+
 
 @Composable
 fun AddUserCard(onEvent: (UserScreenEvent) -> Unit) {
